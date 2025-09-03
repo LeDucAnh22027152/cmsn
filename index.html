@@ -11,7 +11,7 @@
     <style>
         :root {
             /* Responsive book width - Shape is now controlled by aspect-ratio property */
-            --book-width: clamp(320px, 80vw, 800px); /* Made the book wider */
+            --book-width: clamp(320px, 90vw, 800px); /* Made the book wider */
         }
 
         body {
@@ -145,7 +145,7 @@
 
         .book {
             width: var(--book-width);
-            aspect-ratio: 4 / 6; /* Modern way to set a fixed shape */
+            aspect-ratio: 4 / 5; /* Modern way to set a fixed shape */
             position: relative;
             transform-style: preserve-3d;
             transition: transform 0.5s;
