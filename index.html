@@ -12,8 +12,8 @@
         :root { --book-width: clamp(320px, 90vw, 1000px); }
         body { font-family: 'Inter', sans-serif; background-color: #000; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 100vh; cursor: default; }
         .font-pacifico { font-family: 'Pacifico', cursive; }
-        #matrixCanvas, #nebulaCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        #nebulaCanvas { opacity: 0; transition: opacity 2s ease-in; }
+        #matrixCanvas, #gardenCanvas, #starryNightCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        #starryNightCanvas { opacity: 0; transition: opacity 1.5s ease-in-out; }
         .screen { z-index: 10; position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; }
         .screen.hidden { display: none; }
         @keyframes fade-in-strong { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
@@ -49,6 +49,22 @@
              to { opacity: 1; transform: translateY(0) rotateX(0deg) scale(1); }
         }
 
+        /* Styling for the main message */
+        #mainMessage, #nameMessage {
+            color: #fff;
+            text-shadow: 
+                0 0 8px rgba(0, 0, 0, 0.8), /* Dark shadow for contrast */
+                0 0 10px rgba(255,200,220,0.8),
+                0 0 20px rgba(255,150,200,0.6);
+            -webkit-text-stroke: 1px rgba(0,0,0,0.2); /* Subtle outline */
+        }
+        #mainMessage {
+            font-size: clamp(2.5rem, 7vw, 4rem);
+        }
+        #nameMessage {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+        }
+
         .interactive-btn { transition: transform 0.2s ease, filter 0.2s ease; }
         .interactive-btn:active { transform: scale(0.95); filter: brightness(0.9); }
         .book-container { perspective: 2000px; }
@@ -63,8 +79,6 @@
         .book-cover-back { background: linear-gradient(-45deg, #6d28d9, #be185d); border: 2px solid rgba(255, 255, 255, 0.2); box-sizing: border-box; }
         .inner-page { background-color: #fdfbf7; border: 1px solid #ddd; }
         .page-content { font-size: clamp(1rem, 3.5vw, 1.6rem); line-height: 1.7; color: #522d3d; text-align: center; }
-        .pointer-sparkle { position: fixed; pointer-events: none; width: 8px; height: 8px; background: white; border-radius: 50%; box-shadow: 0 0 15px 2px #fff, 0 0 25px 5px #f0abfc; animation: pointer-sparkle-anim 0.6s forwards; }
-        @keyframes pointer-sparkle-anim { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(0); opacity: 0; } }
 
         #musicControlBtn { position: fixed; top: 1rem; right: 1rem; z-index: 100; background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(5px); border: none; border-radius: 50%; width: 48px; height: 48px; cursor: pointer; display: flex; justify-content: center; align-items: center; color: white; opacity: 0; transition: opacity 0.5s ease, transform 0.2s ease; pointer-events: none; }
         #musicControlBtn.visible { opacity: 1; pointer-events: auto; }
@@ -74,7 +88,8 @@
 <body class="w-screen h-screen">
     
     <canvas id="matrixCanvas"></canvas>
-    <canvas id="nebulaCanvas"></canvas>
+    <canvas id="gardenCanvas"></canvas>
+    <canvas id="starryNightCanvas"></canvas>
 
     <button id="musicControlBtn" class="interactive-btn">
         <svg id="pauseIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -88,7 +103,7 @@
 
     <div id="startScreen" class="screen bg-black/50">
         <button id="startButton" class="bg-pink-500/80 backdrop-blur-md text-white font-bold py-4 px-8 rounded-lg shadow-lg text-2xl hover:bg-pink-600 transition-transform transform hover:scale-105 font-pacifico interactive-btn">
-            8/9/2025 - From le duc anh with love
+            9/8/2025 - From le duc anh with love
         </button>
     </div>
     
@@ -112,10 +127,10 @@
                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
             </svg>
             <div id="mainMessageContainer" class="text-container">
-                <h1 id="mainMessage" class="text-4xl md:text-5xl font-pacifico text-white mt-6 min-h-[56px] md:min-h-[64px]"></h1>
+                <h1 id="mainMessage" class="font-pacifico mt-6"></h1>
             </div>
             <div id="nameMessageContainer" class="text-container">
-                <h2 id="nameMessage" class="text-3xl md:text-4xl font-pacifico text-white mt-4 min-h-[48px] md:min-h-[56px]"></h2>
+                <h2 id="nameMessage" class="font-pacifico mt-4"></h2>
             </div>
             <button id="openBookBtn" class="mt-10 bg-pink-500/80 backdrop-blur-md text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-pink-600 transition-all transform hover:scale-105 interactive-btn opacity-0 translate-y-4">
                 Anh có chuyện muốn nói
@@ -160,16 +175,13 @@
             <button id="nextBtn" class="bg-white/50 backdrop-blur-md text-pink-700 font-bold py-3 px-6 rounded-lg shadow-md hover:bg-white/80 disabled:opacity-50 disabled:cursor-not-allowed interactive-btn">Trang Sau</button>
         </div>
     </div>
-    
     <div id="fireworksScreen" class="screen hidden bg-black">
         <canvas id="fireworksCanvas" class="absolute top-0 left-0 w-full h-full z-10"></canvas>
         <button id="backToBookBtn" class="fixed top-4 left-4 z-20 bg-white/30 backdrop-blur-md text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-white/50 interactive-btn">Quay lại sổ</button>
     </div>
-
     <audio id="birthdayAudio" loop>
         <source src="https://files.catbox.moe/cokhor.mp3" type="audio/mpeg">
     </audio>
-    <audio id="sparkleSound" src="https://assets.mixkit.co/sfx/preview/mixkit-small-magic-sparkle-869.mp3" preload="auto"></audio>
     <audio id="explosionSound" src="https://assets.mixkit.co/sfx/preview/mixkit-cinematic-whoosh-explosion-1-2338.mp3" preload="auto"></audio>
 
 
@@ -181,7 +193,6 @@
         const bookScreen = document.getElementById('bookScreen');
         const openBookBtn = document.getElementById('openBookBtn');
         const birthdayAudio = document.getElementById('birthdayAudio');
-        const sparkleSound = document.getElementById('sparkleSound');
         const explosionSound = document.getElementById('explosionSound');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
@@ -193,7 +204,8 @@
         const mainMessageEl = document.getElementById('mainMessage');
         const nameMessageEl = document.getElementById('nameMessage');
         const matrixCanvas = document.getElementById('matrixCanvas');
-        const nebulaCanvas = document.getElementById('nebulaCanvas');
+        const gardenCanvas = document.getElementById('gardenCanvas');
+        const starryNightCanvas = document.getElementById('starryNightCanvas'); // New canvas for starry night
         const musicControlBtn = document.getElementById('musicControlBtn');
         const playIcon = document.getElementById('playIcon');
         const pauseIcon = document.getElementById('pauseIcon');
@@ -209,7 +221,8 @@
         const backToBookBtn = document.getElementById('backToBookBtn');
         
         let matrixInterval = null;
-        let nebulaAnimationId = null;
+        let gardenAnimationId = null;
+        let starryNightAnimationId = null; // New animation ID for starry night
         let fireworksAnimationId = null;
 
         // --- Troll Logic ---
@@ -237,109 +250,214 @@
             }
         };
         
-        // --- Nebula Effect with Heart-shaped Particles (No Rotation, Outward Movement) ---
-        const nebulaCtx = nebulaCanvas.getContext('2d');
-        let nebulaParticles = [];
-        
-        function drawHeart(ctx, x, y, size) { // Removed rotation parameter
+        // --- Rose Garden Effect ---
+        const gardenCtx = gardenCanvas.getContext('2d');
+        let flowers = [];
+        let heartParticles = [];
+
+        function drawHeart(ctx, x, y, size, rotation) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(rotation);
             ctx.beginPath();
             const topCurveHeight = size * 0.3;
-            ctx.moveTo(x, y + size * 0.25);
-            ctx.bezierCurveTo(x, y - topCurveHeight, x - size / 2, y - topCurveHeight, x - size / 2, y + size * 0.25);
-            ctx.bezierCurveTo(x - size / 2, y + size * 0.55, x, y + size * 0.7, x, y + size);
-            ctx.bezierCurveTo(x, y + size * 0.7, x + size / 2, y + size * 0.55, x + size / 2, y + size * 0.25);
-            ctx.bezierCurveTo(x + size / 2, y - topCurveHeight, x, y - topCurveHeight, x, y + size * 0.25);
+            ctx.moveTo(0, size * 0.25);
+            ctx.bezierCurveTo(0, -topCurveHeight, -size / 2, -topCurveHeight, -size / 2, size * 0.25);
+            ctx.bezierCurveTo(-size / 2, size * 0.55, 0, size * 0.7, 0, size);
+            ctx.bezierCurveTo(0, size * 0.7, size / 2, size * 0.55, size / 2, size * 0.25);
+            ctx.bezierCurveTo(size / 2, -topCurveHeight, 0, -topCurveHeight, 0, size * 0.25);
             ctx.closePath();
             ctx.fill();
+            ctx.restore();
         }
 
-        function startNebulaEffect() {
-            nebulaCanvas.width = window.innerWidth;
-            nebulaCanvas.height = window.innerHeight;
-            nebulaCanvas.style.opacity = '1';
-            nebulaParticles = [];
-            const particleCount = 500;
-            const centerX = nebulaCanvas.width / 2;
-            const centerY = nebulaCanvas.height / 2;
-
-            for(let i = 0; i < particleCount; i++) {
-                const angle = Math.random() * Math.PI * 2; // Random angle for outward direction
-                const speed = Math.random() * 1 + 1; // Speed of outward movement
-                nebulaParticles.push({
-                    x: centerX,
-                    y: centerY,
-                    size: Math.random() * 10 + 2,
-                    vx: Math.cos(angle) * speed, // Velocity X
-                    vy: Math.sin(angle) * speed, // Velocity Y
-                    hue: 280 + Math.random() * 80,
-                    alpha: Math.random() * 0.7 + 0.3,
-                    life: 0, // Current life/distance traveled
-                    maxLife: Math.random() * 150 + 100 // How long it lives before fading
+        function startGardenEffect() {
+            gardenCanvas.width = window.innerWidth;
+            gardenCanvas.height = window.innerHeight;
+            flowers = [];
+            heartParticles = [];
+            
+            const flowerCount = 80; // Significantly more flowers
+            for(let i=0; i < flowerCount; i++){
+                flowers.push({
+                    x: Math.random() * gardenCanvas.width,
+                    y: Math.random() * gardenCanvas.height,
+                    size: Math.random() * 15 + 35, // Slightly smaller flowers to fit more, but still good detail
+                    bloomProgress: Math.random() * 0.5, // Start with some bloom
+                    bloomSpeed: Math.random() * 0.003 + 0.002, // Slower, more graceful bloom
+                    isBlooming: true,
+                    petalLayers: 2 + Math.floor(Math.random() * 2), // 2-3 layers for performance
+                    petalsPerLayer: 4 + Math.floor(Math.random() * 2), // 4-5 petals per layer
+                    baseHue: 320 + Math.random() * 40,
+                    heartEmitCounter: 0,
+                    heartEmitDelay: Math.random() * 25 + 35, // Slower heart emission
+                    maxHeartSize: Math.random() * 30 + 40 // Larger max heart size
                 });
             }
-            if (nebulaAnimationId) cancelAnimationFrame(nebulaAnimationId);
-            nebulaAnimationId = requestAnimationFrame(drawNebula);
+
+            if (gardenAnimationId) cancelAnimationFrame(gardenAnimationId);
+            gardenAnimationId = requestAnimationFrame(drawGardenEffects);
         }
 
-        function drawNebula() {
-            nebulaCtx.clearRect(0, 0, nebulaCanvas.width, nebulaCanvas.height);
-            nebulaCtx.globalCompositeOperation = 'lighter';
+        // Optimized drawFlower function
+        function drawFlower(flower) {
+            gardenCtx.save();
+            gardenCtx.translate(flower.x, flower.y);
+            
+            const currentBloom = flower.bloomProgress;
+            const fullSize = flower.size;
 
-            for (let i = nebulaParticles.length - 1; i >= 0; i--) {
-                const p = nebulaParticles[i];
+            for (let layer = 0; layer < flower.petalLayers; layer++) {
+                const layerProgress = Math.min(1, Math.max(0, (currentBloom * flower.petalLayers) - layer));
+                if (layerProgress < 0.1) continue; // Only draw when a significant part has bloomed
 
-                p.x += p.vx;
-                p.y += p.vy;
-                p.life++;
+                const layerScale = 0.4 + (layer / flower.petalLayers) * 0.6; 
+                const layerPetalCount = flower.petalsPerLayer + layer; 
 
-                // Fade out as it moves further
-                p.alpha = 1 - (p.life / p.maxLife); 
-                if (p.alpha < 0.1) { // Remove particle if too faint
-                    nebulaParticles.splice(i, 1);
-                    continue;
+                for (let i = 0; i < layerPetalCount; i++) {
+                    const angle = (i / layerPetalCount) * Math.PI * 2 + layer * 0.1 + flower.x * 0.001 + flower.y * 0.001; // Add some unique jitter
+
+                    const petalLength = fullSize * layerScale * (0.6 + 0.4 * layerProgress);
+                    const petalWidth = fullSize * layerScale * 0.2 * layerProgress; 
+
+                    const startX = Math.cos(angle) * fullSize * 0.03 * (1 - layerProgress); 
+                    const startY = Math.sin(angle) * fullSize * 0.03 * (1 - layerProgress);
+
+                    // Simplified petal shape with fewer control points for performance
+                    gardenCtx.beginPath();
+                    gardenCtx.moveTo(startX, startY);
+                    
+                    const midPoint1X = startX + Math.cos(angle - Math.PI / 6) * petalLength * 0.5 * layerProgress;
+                    const midPoint1Y = startY + Math.sin(angle - Math.PI / 6) * petalLength * 0.5 * layerProgress;
+                    
+                    const midPoint2X = startX + Math.cos(angle + Math.PI / 6) * petalLength * 0.5 * layerProgress;
+                    const midPoint2Y = startY + Math.sin(angle + Math.PI / 6) * petalLength * 0.5 * layerProgress;
+
+                    const endPointX = startX + Math.cos(angle) * petalLength * layerProgress;
+                    const endPointY = startY + Math.sin(angle) * petalLength * layerProgress;
+
+                    gardenCtx.quadraticCurveTo(midPoint1X, midPoint1Y, endPointX, endPointY);
+                    gardenCtx.quadraticCurveTo(midPoint2X, midPoint2Y, startX, startY);
+                    
+                    const gradient = gardenCtx.createRadialGradient(0, 0, 0, 0, 0, fullSize * layerScale);
+                    const hueOffset = layer * 8;
+                    gradient.addColorStop(0, `hsla(${flower.baseHue - 15 + hueOffset}, 60%, 65%, ${0.5 + layerProgress * 0.5})`);
+                    gradient.addColorStop(0.8, `hsla(${flower.baseHue + hueOffset}, 75%, 80%, ${0.7 + layerProgress * 0.3})`);
+                    gradient.addColorStop(1, `hsla(${flower.baseHue + 20 + hueOffset}, 80%, 85%, ${0.4 + layerProgress * 0.6})`);
+
+                    gardenCtx.fillStyle = gradient;
+                    gardenCtx.shadowBlur = 4; // Further reduced shadow blur
+                    gardenCtx.shadowColor = `hsla(${flower.baseHue - 25}, 40%, 35%, ${0.2 * layerProgress})`;
+                    
+                    gardenCtx.fill();
                 }
-                
-                // Regenerate if particles fall below a threshold (optional, for continuous flow)
-                if (nebulaParticles.length < 300) { 
-                    const centerX = nebulaCanvas.width / 2;
-                    const centerY = nebulaCanvas.height / 2;
-                    const angle = Math.random() * Math.PI * 2;
-                    const speed = Math.random() * 2 + 1;
-                    nebulaParticles.push({
-                        x: centerX,
-                        y: centerY,
-                        size: Math.random() * 4 + 2,
-                        vx: Math.cos(angle) * speed,
-                        vy: Math.sin(angle) * speed,
-                        hue: 280 + Math.random() * 80,
-                        alpha: Math.random() * 0.7 + 0.3,
-                        life: 0,
-                        maxLife: Math.random() * 150 + 100
-                    });
+            }
+            gardenCtx.restore();
+        }
+
+        function drawGardenEffects() {
+            gardenCtx.clearRect(0, 0, gardenCanvas.width, gardenCanvas.height);
+            
+            for (let i = flowers.length - 1; i >= 0; i--) { // Iterate backwards for safe removal (if needed)
+                const flower = flowers[i];
+                if (flower.isBlooming) {
+                    flower.bloomProgress += flower.bloomSpeed;
+                    if (flower.bloomProgress >= 1) {
+                        flower.bloomProgress = 1;
+                        flower.isBlooming = false;
+                    }
                 }
+                drawFlower(flower);
 
-                p.hue = (p.hue + 0.2) % 360; // Gently shift color
-                nebulaCtx.fillStyle = `hsla(${p.hue}, 100%, 70%, ${p.alpha})`;
-
-                drawHeart(nebulaCtx, p.x, p.y, p.size);
+                if (flower.bloomProgress >= 0.7) { 
+                    flower.heartEmitCounter++;
+                    if(flower.heartEmitCounter > flower.heartEmitDelay) {
+                        const offsetAngle = Math.random() * Math.PI * 2;
+                        const offsetDist = flower.size * 0.25;
+                        heartParticles.push({
+                            x: flower.x + Math.cos(offsetAngle) * offsetDist,
+                            y: flower.y + Math.sin(offsetAngle) * offsetDist,
+                            initialSize: flower.maxHeartSize, 
+                            size: 0, 
+                            vx: (Math.random() - 0.5) * 2.5, // Slightly stronger movement
+                            vy: -Math.random() * 4 - 2.5, 
+                            hue: 300 + Math.random() * 60,
+                            alpha: 1,
+                            rotation: Math.random() * Math.PI * 2,
+                            growthSpeed: Math.random() * 0.15 + 0.15, 
+                            fadeSpeed: Math.random() * 0.006 + 0.006 
+                        });
+                        flower.heartEmitCounter = 0;
+                    }
+                }
             }
 
-            nebulaAnimationId = requestAnimationFrame(drawNebula);
+            for (let i = heartParticles.length - 1; i >= 0; i--) {
+                const p = heartParticles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= p.fadeSpeed; 
+                p.vy *= 0.95; 
+
+                if (p.size < p.initialSize) {
+                    p.size += p.growthSpeed;
+                    if (p.size > p.initialSize) p.size = p.initialSize;
+                }
+                
+                if (p.alpha <= 0 || p.y < -p.initialSize) { 
+                    heartParticles.splice(i, 1);
+                } else {
+                    gardenCtx.fillStyle = `hsla(${p.hue}, 100%, 78%, ${p.alpha})`; // Slightly brighter for more pop
+                    gardenCtx.shadowBlur = 5; 
+                    gardenCtx.shadowColor = `hsla(${p.hue}, 100%, 68%, ${p.alpha * 0.3})`; 
+                    drawHeart(gardenCtx, p.x, p.y, p.size, p.rotation);
+                }
+            }
+            
+            gardenAnimationId = requestAnimationFrame(drawGardenEffects);
         }
 
-        function createPointerSparkle(e) {
-            const x = e.clientX || (e.touches && e.touches[0].clientX);
-            const y = e.clientY || (e.touches && e.touches[0].clientY);
-            if (x === undefined) return;
-            const sparkle = document.createElement('div');
-            sparkle.className = 'pointer-sparkle';
-            sparkle.style.top = `${y - 4}px`; sparkle.style.left = `${x - 4}px`;
-            document.body.appendChild(sparkle);
-            setTimeout(() => sparkle.remove(), 600);
-            sparkleSound.currentTime = 0;
-            sparkleSound.play().catch(e => {});
+        // --- Starry Night Effect ---
+        const starryCtx = starryNightCanvas.getContext('2d');
+        let stars = [];
+        const numStars = 500; // Number of stars
+
+        function setupStarryNight() {
+            starryNightCanvas.width = window.innerWidth;
+            starryNightCanvas.height = window.innerHeight;
+            stars = [];
+            for (let i = 0; i < numStars; i++) {
+                stars.push({
+                    x: Math.random() * starryNightCanvas.width,
+                    y: Math.random() * starryNightCanvas.height,
+                    radius: Math.random() * 1.5 + 0.5, // Star size
+                    alpha: Math.random(), // For twinkling effect
+                    speed: Math.random() * 0.005 + 0.001 // Twinkling speed
+                });
+            }
         }
 
+        function drawStarryNight() {
+            starryCtx.clearRect(0, 0, starryNightCanvas.width, starryNightCanvas.height);
+            starryCtx.fillStyle = '#000';
+            starryCtx.fillRect(0, 0, starryNightCanvas.width, starryNightCanvas.height); // Ensure black background
+            
+            stars.forEach(star => {
+                star.alpha += star.speed;
+                if (star.alpha > 1) {
+                    star.alpha = 0;
+                    star.x = Math.random() * starryNightCanvas.width; // Respawn star
+                    star.y = Math.random() * starryNightCanvas.height;
+                }
+                starryCtx.beginPath();
+                starryCtx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                starryCtx.fillStyle = `rgba(255, 255, 255, ${Math.abs(Math.sin(star.alpha))})`; // Twinkling effect
+                starryCtx.fill();
+            });
+
+            starryNightAnimationId = requestAnimationFrame(drawStarryNight);
+        }
+        
         function typewriter(element, text, speed = 80, callback) {
             let i = 0; element.innerHTML = ""; element.classList.add('typing-cursor');
             function type() {
@@ -370,7 +488,7 @@
                     setTimeout(() => {
                         countdownEl.style.display = 'none';
                         matrixCanvas.style.transition = 'opacity 2s';
-                        matrixCanvas.style.opacity = '0.1';
+                        matrixCanvas.style.opacity = '0.1'; // Keep matrix visible but faint
                         
                         birthdayAudio.play().catch(e => {});
                         musicControlBtn.classList.add('visible');
@@ -391,7 +509,7 @@
                         setTimeout(() => {
                             animatedHeart.style.display = 'none';
                             finalMessageEl.classList.add('visible');
-                            startNebulaEffect();
+                            startGardenEffect();
 
                             mainMessageContainer.style.animationDelay = '0.5s';
                             nameMessageContainer.style.animationDelay = '1s';
@@ -409,8 +527,6 @@
 
                         }, 1000);
                         
-                        window.addEventListener('mousemove', createPointerSparkle);
-                        window.addEventListener('touchmove', createPointerSparkle);
 
                     }, 600);
                 }
@@ -468,15 +584,19 @@
 
         openBookBtn.addEventListener('click', () => {
             finalMessageEl.classList.add('animate-fade-out');
-            nebulaCanvas.style.transition = 'opacity 0.5s ease-out';
-            nebulaCanvas.style.opacity = '0';
+            gardenCanvas.style.transition = 'opacity 1.5s ease-in-out';
+            gardenCanvas.style.opacity = '0'; // Fade out garden canvas
             setTimeout(() => { 
                 matrixScreen.classList.add('hidden'); 
                 bookScreen.classList.remove('hidden'); 
-                if (nebulaAnimationId) cancelAnimationFrame(nebulaAnimationId);
+                if (gardenAnimationId) cancelAnimationFrame(gardenAnimationId);
+                gardenCanvas.style.display = 'none'; // Hide garden canvas fully
+
+                setupStarryNight(); // Setup and start starry night
+                starryNightCanvas.style.display = 'block';
+                starryNightCanvas.style.opacity = '1';
+                starryNightAnimationId = requestAnimationFrame(drawStarryNight);
             }, 500);
-            window.removeEventListener('mousemove', createPointerSparkle);
-            window.removeEventListener('touchmove', createPointerSparkle);
         });
         
         musicControlBtn.addEventListener('click', () => {
@@ -493,8 +613,14 @@
                 if (currentPage === maxPage) {
                     setTimeout(() => {
                         bookScreen.classList.add('animate-fade-out');
-                        matrixCanvas.style.opacity = '0';
-                        setTimeout(() => { bookScreen.classList.add('hidden'); fireworksScreen.classList.remove('hidden'); startFireworks(); }, 500);
+                        starryNightCanvas.style.opacity = '0'; // Fade out starry night
+                        if (starryNightAnimationId) cancelAnimationFrame(starryNightAnimationId);
+                        setTimeout(() => { 
+                            bookScreen.classList.add('hidden'); 
+                            starryNightCanvas.style.display = 'none'; // Hide starry night fully
+                            fireworksScreen.classList.remove('hidden'); 
+                            startFireworks(); 
+                        }, 500);
                     }, 1500);
                 }
             } else if (direction === 'prev' && currentPage > 0) {
@@ -510,7 +636,8 @@
         }; 
         window.onresize = () => { 
             if(matrixInterval) setupMatrix(); 
-            if(nebulaCanvas.style.opacity === '1' && !matrixScreen.classList.contains('hidden')) startNebulaEffect();
+            if(!matrixScreen.classList.contains('hidden')) startGardenEffect();
+            if(!bookScreen.classList.contains('hidden')) setupStarryNight(); // Resize starry night
         };
         function startFireworks(){const f_ctx=fireworksCanvas.getContext('2d');let width=fireworksCanvas.width=window.innerWidth;let height=fireworksCanvas.height=window.innerHeight;window.addEventListener('resize',()=>{width=fireworksCanvas.width=window.innerWidth;height=fireworksCanvas.height=window.innerHeight;});const fireworks=[];const particles=[];class Firework{constructor(){this.x=Math.random()*width;this.y=height;this.sx=this.x;this.sy=height;this.tx=Math.random()*width;this.ty=Math.random()*height/2;this.distanceToTarget=Math.sqrt(Math.pow(this.x-this.tx,2)+Math.pow(this.y-this.ty,2));this.distanceTraveled=0;this.coordinates=[];this.coordinateCount=3;while(this.coordinateCount--){this.coordinates.push([this.x,this.y]);}
 this.angle=Math.atan2(this.ty-this.sy,this.tx-this.sx);this.speed=3;this.acceleration=1.03;this.brightness=Math.random()*30+60;this.hue=Math.random()*360;}
@@ -527,7 +654,11 @@ let j=particles.length;while(j--){particles[j].draw();particles[j].update(j);}
 if(currentTime-lastLaunchTime>launchInterval){fireworks.push(new Firework());lastLaunchTime=currentTime;}}
 loop(0);}
 backToBookBtn.addEventListener('click',()=>{if(fireworksAnimationId){cancelAnimationFrame(fireworksAnimationId);fireworksAnimationId=null;}
-fireworksScreen.classList.add('animate-fade-out');setTimeout(()=>{fireworksScreen.classList.add('hidden');fireworksScreen.classList.remove('animate-fade-out');bookScreen.classList.remove('hidden','animate-fade-out');bookScreen.classList.add('animate-fade-in-strong');matrixCanvas.style.opacity = '1';
+fireworksScreen.classList.add('animate-fade-out');setTimeout(()=>{fireworksScreen.classList.add('hidden');fireworksScreen.classList.remove('animate-fade-out');bookScreen.classList.remove('hidden','animate-fade-out');bookScreen.classList.add('animate-fade-in-strong');
+setupStarryNight(); // Re-setup starry night
+starryNightCanvas.style.display = 'block';
+starryNightCanvas.style.opacity = '1';
+starryNightAnimationId = requestAnimationFrame(drawStarryNight);
 setTimeout(()=>{bookScreen.classList.remove('animate-fade-in-strong');},1500);},500);});
     </script>
 </body>
