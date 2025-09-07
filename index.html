@@ -83,6 +83,15 @@
         #musicControlBtn { position: fixed; top: 1rem; right: 1rem; z-index: 100; background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(5px); border: none; border-radius: 50%; width: 48px; height: 48px; cursor: pointer; display: flex; justify-content: center; align-items: center; color: white; opacity: 0; transition: opacity 0.5s ease, transform 0.2s ease; pointer-events: none; }
         #musicControlBtn.visible { opacity: 1; pointer-events: auto; }
         #musicControlBtn:active { transform: scale(0.9); }
+        
+        /* Shake animation for wrong password */
+        @keyframes shake {
+          10%, 90% { transform: translateX(-1px); }
+          20%, 80% { transform: translateX(2px); }
+          30%, 50%, 70% { transform: translateX(-4px); }
+          40%, 60% { transform: translateX(4px); }
+        }
+        .animate-shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
     </style>
 </head>
 <body class="w-screen h-screen">
@@ -96,15 +105,19 @@
             <rect x="6" y="4" width="4" height="16"></rect>
             <rect x="14" y="4" width="4" height="16"></rect>
         </svg>
-        <svg id="playIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden">
+        <svg id="playIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden">
             <polygon points="5 3 19 12 5 21 5 3"></polygon>
         </svg>
     </button>
 
-    <div id="startScreen" class="screen bg-black/50">
-        <button id="startButton" class="bg-pink-500/80 backdrop-blur-md text-white font-bold py-4 px-8 rounded-lg shadow-lg text-2xl hover:bg-pink-600 transition-transform transform hover:scale-105 font-pacifico interactive-btn">
-            9/8/2025 - From le duc anh with love
-        </button>
+    <div id="passwordScreen" class="screen bg-black/50 p-4">
+        <div class="w-full max-w-xs text-center">
+            <h2 class="font-pacifico text-4xl text-white mb-2" style="text-shadow: 0 0 10px #ec4899;">Something for NTT</h2>
+            <p class="text-pink-200 mb-6">Hint: Ngày tháng năm sinh NTT</p>
+            <input type="password" id="passwordInput" class="w-full bg-pink-900/50 text-white text-center text-lg p-3 rounded-lg border border-pink-400/50 focus:ring-2 focus:ring-pink-400 focus:outline-none" placeholder="ngày tháng năm">
+            <p id="errorMessage" class="text-red-400 mt-2 hidden">Mật khẩu không đúng, thử lại đi nàoo</p>
+            <button id="submitPasswordBtn" class="w-full mt-4 bg-pink-500/80 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-pink-600 transition-colors interactive-btn">Mở</button>
+        </div>
     </div>
     
     <div id="trollScreen" class="screen hidden bg-black/70 text-white text-center p-4">
@@ -179,6 +192,7 @@
         <canvas id="fireworksCanvas" class="absolute top-0 left-0 w-full h-full z-10"></canvas>
         <button id="backToBookBtn" class="fixed top-4 left-4 z-20 bg-white/30 backdrop-blur-md text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-white/50 interactive-btn">Quay lại sổ</button>
     </div>
+
     <audio id="birthdayAudio" loop>
         <source src="https://files.catbox.moe/cokhor.mp3" type="audio/mpeg">
     </audio>
@@ -187,8 +201,10 @@
 
     <script>
         // --- Get DOM Elements ---
-        const startScreen = document.getElementById('startScreen');
-        const startButton = document.getElementById('startButton');
+        const passwordScreen = document.getElementById('passwordScreen');
+        const passwordInput = document.getElementById('passwordInput');
+        const submitPasswordBtn = document.getElementById('submitPasswordBtn');
+        const errorMessage = document.getElementById('errorMessage');
         const matrixScreen = document.getElementById('matrixScreen');
         const bookScreen = document.getElementById('bookScreen');
         const openBookBtn = document.getElementById('openBookBtn');
@@ -205,7 +221,7 @@
         const nameMessageEl = document.getElementById('nameMessage');
         const matrixCanvas = document.getElementById('matrixCanvas');
         const gardenCanvas = document.getElementById('gardenCanvas');
-        const starryNightCanvas = document.getElementById('starryNightCanvas'); // New canvas for starry night
+        const starryNightCanvas = document.getElementById('starryNightCanvas');
         const musicControlBtn = document.getElementById('musicControlBtn');
         const playIcon = document.getElementById('playIcon');
         const pauseIcon = document.getElementById('pauseIcon');
@@ -222,8 +238,11 @@
         
         let matrixInterval = null;
         let gardenAnimationId = null;
-        let starryNightAnimationId = null; // New animation ID for starry night
+        let starryNightAnimationId = null;
         let fireworksAnimationId = null;
+
+        // --- IMPORTANT: Set the correct password here ---
+        const CORRECT_PASSWORD = '08092006'; // Format: ddmmyyyy
 
         // --- Troll Logic ---
         let moveCount1 = 0; let moveCount2 = 0; const MAX_MOVES = 4; const Medium_Moves = 3;
@@ -488,7 +507,7 @@
                     setTimeout(() => {
                         countdownEl.style.display = 'none';
                         matrixCanvas.style.transition = 'opacity 2s';
-                        matrixCanvas.style.opacity = '0.1'; // Keep matrix visible but faint
+                        matrixCanvas.style.opacity = '0'; // Completely fade out matrix
                         
                         birthdayAudio.play().catch(e => {});
                         musicControlBtn.classList.add('visible');
@@ -534,13 +553,30 @@
         }
         
         // --- Event Listeners ---
-        startButton.addEventListener('click', () => {
-            startScreen.classList.add('animate-fade-out');
-            setTimeout(() => {
-                startScreen.classList.add('hidden');
-                trollScreen.classList.remove('hidden');
-                trollScreen.classList.add('animate-fade-in-strong');
-            }, 500);
+        function checkPassword() {
+            const inputVal = passwordInput.value;
+            if (inputVal === CORRECT_PASSWORD) {
+                passwordScreen.classList.add('animate-fade-out');
+                setTimeout(() => {
+                    passwordScreen.classList.add('hidden');
+                    trollScreen.classList.remove('hidden');
+                    trollScreen.classList.add('animate-fade-in-strong');
+                }, 500);
+            } else {
+                errorMessage.classList.remove('hidden');
+                passwordInput.classList.add('animate-shake');
+                passwordInput.value = '';
+                setTimeout(() => {
+                    passwordInput.classList.remove('animate-shake');
+                }, 500);
+            }
+        }
+        
+        submitPasswordBtn.addEventListener('click', checkPassword);
+        passwordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
         });
         
         q1_yes.addEventListener('click', () => {
